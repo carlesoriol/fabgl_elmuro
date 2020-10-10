@@ -5,7 +5,8 @@ When I was a child and I got my first ZX spectrum there was a demo tape with it.
 
 I did this version in a copule of hours to test Fabrizio Di Vittorio VGADirectController. It has been funny.
 
-![Alt text](game.jpg)
+[![Everything Is AWESOME](game.jpg)](https://www.youtube.com/watch?v=Yo0k_R769_8 "")
+click for video
 
 https://github.com/carlesoriol/fabgl_elmuro
 
