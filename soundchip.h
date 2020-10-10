@@ -117,3 +117,10 @@ void playSoundReset()
   playSound ( {0, 1, 127, 8, WAVE_SQUARE, 127, 575, 3920, 10, MODFREQ_TO_END} );  
   playSound ( {0, 1, 127, 8, WAVE_SQUARE, 127, 575, 320, 10, MODFREQ_TO_END} );  
 }
+
+void playSoundWon()
+{
+  playSound ( {0, 1, 127, 8, WAVE_SQUARE, 127, 775, 10, 3920, MODFREQ_TO_END} );  
+  playSound ( {0, 1, 127, 8, WAVE_SQUARE, 127, 775, 320, 10, MODFREQ_TO_END} );  
+  playSound ( {0, 1, 127, 8, WAVE_SQUARE, 127, 775, 10, 500, MODFREQ_TO_END} );  
+}

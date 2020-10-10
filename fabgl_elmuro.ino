@@ -49,7 +49,7 @@ long offGame = 0;
 volatile int objIntX;
 volatile int objIntY;
 
-int nBricks = 0;
+int nBricks = 8*12;
 bool brickMap[8][12];
 
 int paddlePos = 320/2;
@@ -158,6 +158,11 @@ void IRAM_ATTR MyDirectDrawVGAController::drawScanline(uint8_t * dest, int scanL
 
 void resetGame()
 {
+  if( nBricks )
+    playSoundReset();  
+  else 
+    playSoundWon();  
+  
   memset( brickMap, true, sizeof(brickMap));
   nBricks = 12*8;
   objIntX = objX = INITIALX;
@@ -165,7 +170,7 @@ void resetGame()
   objDir  = INITIALDIR;
   offGame = millis();
   nPaddles = PADDLES;
-  playSoundReset();
+  
 }
 
 void setup()
@@ -207,7 +212,8 @@ void loop()
       playSoundPic();           
   }
 
-  if( nBricks == 0) resetGame();
+  if( nBricks == 0)
+    resetGame();
 
   double sdir = sin(objDir);
   
