@@ -39,6 +39,8 @@ I know there are bugs, so you can anjoy fixing them.
 - Mouse - Easiest to win
 - Cursor keys
 
+Right mouse button or escape to switch demo mode. (without debouncer)
+
 Play with friends or family is always more funny. Create your competitions.
 
 ## Game score
