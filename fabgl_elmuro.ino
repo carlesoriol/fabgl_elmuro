@@ -31,10 +31,12 @@ SquareWaveformGenerator swg;
 
 #define TOPMARGIN 6
 #define SIDEMARGIN 14
-#define INITIALDIR (-PI/2+.5)
+#define INITIALDIR (-PI/2.5)
 #define INITIALY 179
 #define INITIALX 150
 #define PADDLES 3
+
+#define MINANGLE (PI/3)
 
 volatile double      objX    = INITIALX;
 volatile double      objY    = INITIALY;
@@ -48,6 +50,9 @@ long offGame = 0;
 // just to avoid floating point calculations inside MyDirectDrawVGAController::drawScanline()
 volatile int objIntX;
 volatile int objIntY;
+
+volatile double oldobjX;
+volatile double oldobjY;
 
 int nBricks = 8*12;
 bool brickMap[8][12];
@@ -193,6 +198,14 @@ void setup()
   delay(3000);
 }
 
+void setDir( double newDir )
+{
+  objDir = newDir;
+    //normalize dir
+  while( objDir > PI) objDir -= PI*2;
+  while( objDir < -PI) objDir += PI*2;
+}
+
 
 void loop()
 {
@@ -208,48 +221,55 @@ void loop()
   {
       brickMap[bricky][brickx] = false;
       nBricks--;      
-      objDir = (( bricky != oldbricky ) ? 2 : 1) * PI - objDir;    
+      setDir ((( bricky != oldbricky ) ? 2 : 1) * PI - objDir);    
       playSoundPic();           
   }
 
   if( nBricks == 0)
     resetGame();
 
-  double sdir = sin(objDir);
-  
+  double dmin = objSize / 2 +SIDEMARGIN;
+  double dmax = 320 - objSize / 2-SIDEMARGIN;
   // test collision with borders and bounce changing direction
-  if (objX < objSize / 2 +SIDEMARGIN|| objX > DisplayController.getScreenWidth() - objSize / 2-SIDEMARGIN)
+  if ( (objX < dmin  &&  oldobjX >= dmin ) || (objX > dmax && oldobjX <= dmax ) )
   {
-    objDir = PI - objDir;
+    setDir ( PI - objDir );
     playSoundPong();
   }
-  else if (objY < objSize / 2 +TOPMARGIN && sdir <= 0) 
+  else if (objY < (objSize / 2 +TOPMARGIN) && (oldobjX >= (objSize / 2 +TOPMARGIN))) 
   {
-    objDir = 2 * PI - objDir;    
+    setDir ( 2 * PI - objDir );    
     playSoundPong();
   }
   
   // check paddle collision  
-  if ( !offGame && objX > paddlePos -(16+objSize/2) && objX < paddlePos +(16+objSize/2) && objY > 184-objSize/2 && objY< 192 && sdir >= 0)
+  if ( !offGame 
+      && (objX > paddlePos -(16+objSize) && objX < paddlePos +(16+objSize)  || oldobjX > paddlePos -(16+objSize) && oldobjX < paddlePos +(16+objSize)  )
+      && objY > 185-objSize/2 && oldobjY <= 185-objSize/2)
   {    
-    objDir = 2 * PI - objDir;      
-    objDir += (objX - ((double)paddlePos))*((PI/2.0)/32.0);
+    setDir (  2 * PI - objDir );      
+    setDir ( objDir + (objX - ((double)paddlePos))*((PI/2.0)/32.0) );
+    Serial.print( (String)""+objDir+", "+(-MINANGLE)+", "+(-(PI-MINANGLE)));
+    if( objDir > -MINANGLE) objDir = -MINANGLE;
+    if( objDir < -(PI-MINANGLE)) objDir = -(PI-MINANGLE);
+    Serial.println( (String)" "+objDir);
     playSoundTuc();
   }
 
+  oldobjX = objX;
+  oldobjY = objY;
+  
   if( !offGame )
   {
-    sdir = sin(objDir);
+    double sdir = sin(objDir);
     // calculate new coordinates  
     objX += objVel * cos(objDir);
     objY += objVel * sdir;
   }
   else
-    objX = paddlePos +8;
+    objX = paddlePos +4;
     
   if(objY < 7) objY = 8;
-  if( objX < 16  ) objX =  16 ;
-  if( objX > 319-16 ) objX = 319-16;
 
   // Ball lost
   if(objY > 200) 
@@ -261,12 +281,14 @@ void loop()
       resetGame();
     else
     {
-      objY = INITIALY;
+      objY = INITIALY;      
       objDir  = INITIALDIR;      
+      objX = paddlePos +4;
     }
   }
 
   // convert object coordinate to integer
+
   objIntX = objX;
   objIntY = objY;
 
