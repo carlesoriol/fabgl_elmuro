@@ -36,7 +36,7 @@ SquareWaveformGenerator swg;
 #define INITIALX 150
 #define PADDLES 3
 
-#define MINANGLE (PI/3)
+#define MINANGLE (PI/5)
 
 volatile double      objX    = INITIALX;
 volatile double      objY    = INITIALY;
@@ -59,6 +59,8 @@ bool brickMap[8][12];
 
 int paddlePos = 320/2;
 int nPaddles = PADDLES;
+
+bool bAuto = false;
 
 GameControllerMouse      cMouse;
 GameControllerKeys       cKeysArrows;
@@ -222,7 +224,7 @@ void loop()
       brickMap[bricky][brickx] = false;
       nBricks--;      
       setDir ((( bricky != oldbricky ) ? 2 : 1) * PI - objDir);    
-      playSoundPic();           
+      playSoundPic(bricky/2);           
   }
 
   if( nBricks == 0)
@@ -249,10 +251,8 @@ void loop()
   {    
     setDir (  2 * PI - objDir );      
     setDir ( objDir + (objX - ((double)paddlePos))*((PI/2.0)/32.0) );
-    Serial.print( (String)""+objDir+", "+(-MINANGLE)+", "+(-(PI-MINANGLE)));
     if( objDir > -MINANGLE) objDir = -MINANGLE;
     if( objDir < -(PI-MINANGLE)) objDir = -(PI-MINANGLE);
-    Serial.println( (String)" "+objDir);
     playSoundTuc();
   }
 
@@ -261,10 +261,9 @@ void loop()
   
   if( !offGame )
   {
-    double sdir = sin(objDir);
     // calculate new coordinates  
     objX += objVel * cos(objDir);
-    objY += objVel * sdir;
+    objY += objVel * sin(objDir);
   }
   else
     objX = paddlePos +4;
@@ -300,6 +299,16 @@ void loop()
   if( cKeysArrows.isRight() ) paddlePos += 8;
   if( cMouse.isButtonA() || cKeysArrows.isButtonA() )
     offGame = false;
+
+  if( cMouse.isButtonB() || cKeysArrows.isButtonB() )
+    bAuto = not bAuto;
+
+  if(bAuto)
+  {
+    if (paddlePos < objX ) paddlePos +=2;
+    if (paddlePos > objX ) paddlePos -=2;
+    if( offGame ) offGame = false;
+  }
   
   if( paddlePos < 32) paddlePos = 32; 
   if( paddlePos > 319-32) paddlePos = 319-32; 

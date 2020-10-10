@@ -92,9 +92,9 @@ void playSound( playsounddata ps )
 }
 
 
-void playSoundPic()
+void playSoundPic(int nlevel)
 {
-  playSound ( {2, 1, 127, 3, WAVE_SQUARE, 127, 12, 977, 0, MODFREQ_NONE });
+  playSound ( {2, 1, 127, 3, WAVE_SQUARE, 127, 12, 977+75*(3-nlevel), 0, MODFREQ_NONE });
 }
 
 void playSoundTuc()
